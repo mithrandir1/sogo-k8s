@@ -38,6 +38,7 @@ jobs:
             --build-arg TAG='sogo' \
             --build-arg VCS_REF='${GITHUB_SHA}' \
             --build-arg BUILD_DATE="${BUILD_DATE}" \
+            --file Containerfile \
             .
           docker tag ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:latest \
             ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:${TIMESTAMP}
