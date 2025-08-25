@@ -31,20 +31,19 @@ jobs:
       - name: 'Build Inventory Image'
         run: |
           export BUILD_DATE=$(date "+%4Y-%m-%d %H:%M:%S")
-          export REPOSITORY=
           export TIMESTAMP=$(date "+%4Y%m%d%H%M%S")
           docker build \
-            --tag ghcr.io/${GITHUB_REPOSITORY}:latest \
+            --tag ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:latest \
             --build-arg BUILD_NUMBER='${GITHUB_RUN_NUMBER}' \
             --build-arg TAG='sogo' \
             --build-arg VCS_REF='${GITHUB_SHA}' \
             --build-arg BUILD_DATE="${BUILD_DATE}" \
             --file Containerfile \
             .
-          docker tag ghcr.io/${GITHUB_REPOSITORY}:latest \
-            ghcr.io/${GITHUB_REPOSITORY}:${TIMESTAMP}
-          docker push ghcr.io/${GITHUB_REPOSITORY}:${TIMESTAMP}
-          docker push ghcr.io/${GITHUB_REPOSITORY}:latest
+          docker tag ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:latest \
+            ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:${TIMESTAMP}
+          docker push ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:${TIMESTAMP}
+          docker push ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:latest
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1
