@@ -26,7 +26,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{github.actor}}
-          password: ${{secrets.GITHUB_TOKEN}}
+          password: ${{secrets.GHCR_TOKEN}}
 
       - name: 'Build Inventory Image'
         run: |
@@ -48,4 +48,4 @@ jobs:
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1
         env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          CR_TOKEN: "${{ secrets.GHCR_TOKEN }}"
