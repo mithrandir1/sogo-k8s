@@ -1,4 +1,6 @@
-FROM debian:bookworm-slim
+ARG REGISTRY=docker.io/library
+ARG DEBIAN_VER=12
+FROM ${REGISTRY}/debian:${DEBIAN_VER}-slim
 
 ARG SOGO_VER=5.12.3
 ARG BUILD_NUMBER=0
@@ -11,7 +13,7 @@ LABEL \
       org.opencontainers.image.vendor="Mithrandir1 <https://github.com/mithrandir1>" \
       org.opencontainers.image.title="SOGo Groupware" \
       org.opencontainers.image.description="SOGo is a groupware server with a focus on scalability and open standards." \
-      org.opencontainers.image.version="${SOGO_VER}-${BUILD_NUMBER}" \
+      org.opencontainers.image.version="${SOGO_VER}-debian-12-r${BUILD_NUMBER}" \
       org.opencontainers.image.url="https://github.com/mithrandir1/containers" \
       org.opencontainers.image.source="https://github.com/Alinto/sogo" \
       org.opencontainers.image.licenses="GPL-2.0" \

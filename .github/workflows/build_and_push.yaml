@@ -21,31 +21,37 @@ jobs:
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
-      - name: 'Login to GitHub Container Registry'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{github.actor}}
-          password: ${{secrets.GHCR_TOKEN}}
-
-      - name: 'Build Inventory Image'
+      - name: 'Build Container Image'
+        shell: bash
+        env:
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          DEBIAN_VER: "12"
         run: |
           export BUILD_DATE=$(date "+%4Y-%m-%d %H:%M:%S")
           export TIMESTAMP=$(date "+%4Y%m%d%H%M%S")
-          docker build \
-            --tag ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:latest \
+          export SOGO_VER=$(curl --silent https://api.github.com/repos/Alinto/sogo/releases/latest | jq -r '.tag_name | split("-")[1]')
+          podman build \
+            --tag sogo \
             --build-arg BUILD_NUMBER='${GITHUB_RUN_NUMBER}' \
             --build-arg TAG='sogo' \
+            --build-arg DEBIAN_VER='${DEBIAN_VER}' \
+            --build-arg SOGO_VER='${SOGO_VER}' \
             --build-arg VCS_REF='${GITHUB_SHA}' \
             --build-arg BUILD_DATE="${BUILD_DATE}" \
             --file Containerfile \
             .
-          docker tag ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:latest \
-            ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:${TIMESTAMP}
-          docker push ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:${TIMESTAMP}
-          docker push ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:latest
+          podman push --creds="${GITHUB_REPOSITORY_OWNER}:${GHCR_TOKEN}" \
+            sogo docker://ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:${SOGO_VER}-debian-${DEBIAN_VER}-r${GITHUB_RUN_NUMBER}
+          podman push --creds="${GITHUB_REPOSITORY_OWNER}:${GHCR_TOKEN}" \
+            sogo docker://ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:latest
 
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1
+      - name: 'Package Helm Chart'
+        shell: bash
         env:
-          CR_TOKEN: "${{ secrets.GHCR_TOKEN }}"
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: |
+          export chart_name=$(yq eval -r '.name' charts/sogo/Chart.yaml)
+          export chart_version=$(yq eval -r '.version' charts/sogo/Chart.yaml)
+          helm package charts/sogo --dependency-update
+          echo ${GHCR_TOKEN} | helm registry login --username ${GITHUB_REPOSITORY_OWNER} --password-stdin ghcr.io
+          helm push ${chart_name}-${chart_version}.tgz oci://ghcr.io/${GITHUB_REPOSITORY_OWNER}/
