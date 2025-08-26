@@ -25,8 +25,8 @@ jobs:
         shell: bash
         env:
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-          DEBIAN_VER: "12"
         run: |
+          export DEBIAN_VER="12"
           export BUILD_DATE=$(date "+%4Y-%m-%d %H:%M:%S")
           export TIMESTAMP=$(date "+%4Y%m%d%H%M%S")
           export SOGO_VER=$(curl --silent https://api.github.com/repos/Alinto/sogo/releases/latest | jq -r '.tag_name | split("-")[1]')
