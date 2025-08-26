@@ -32,11 +32,11 @@ jobs:
           export SOGO_VER=$(curl --silent https://api.github.com/repos/Alinto/sogo/releases/latest | jq -r '.tag_name | split("-")[1]')
           podman build \
             --tag sogo \
-            --build-arg BUILD_NUMBER='${GITHUB_RUN_NUMBER}' \
+            --build-arg BUILD_NUMBER="${GITHUB_RUN_NUMBER}" \
             --build-arg TAG='sogo' \
-            --build-arg DEBIAN_VER='${DEBIAN_VER}' \
-            --build-arg SOGO_VER='${SOGO_VER}' \
-            --build-arg VCS_REF='${GITHUB_SHA}' \
+            --build-arg DEBIAN_VER="${DEBIAN_VER}" \
+            --build-arg SOGO_VER="${SOGO_VER}" \
+            --build-arg VCS_REF="${GITHUB_SHA}" \
             --build-arg BUILD_DATE="${BUILD_DATE}" \
             --file Containerfile \
             .
