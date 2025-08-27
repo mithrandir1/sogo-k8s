@@ -28,10 +28,10 @@ jobs:
         shell: bash
         run: |
           cat << EOT > .env
-          export BUILD_DATE=$(date "+%4Y-%m-%d %H:%M:%S")
-          export TIMESTAMP=$(date "+%4Y%m%d%H%M%S")
+          export BUILD_DATE="$(date \"+%4Y-%m-%d %H:%M:%S\")"
+          export TIMESTAMP="$(date \"+%4Y%m%d%H%M%S\")"
           export SOGO_VER=$(curl --silent https://api.github.com/repos/Alinto/sogo/releases/latest | jq -r '.tag_name | split("-")[1]')
-          export APP_VER=$(yq eval -r '.appVersion' charts/sogo/Chart.yaml)
+          export APP_VER="$(yq eval -r '.appVersion' charts/sogo/Chart.yaml)"
           EOT
           source .env
           if [[ "$SOGO_VER" == "$APP_VER" ]]
