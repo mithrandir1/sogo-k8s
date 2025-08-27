@@ -10,6 +10,9 @@ jobs:
   push-store-image:
     permissions: write-all
     runs-on: ubuntu-latest
+    env:
+      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+      DEBIAN_VER: "12"
     steps:
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@v4
@@ -23,13 +26,21 @@ jobs:
 
       - name: 'Build Container Image'
         shell: bash
-        env:
-          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
         run: |
-          export DEBIAN_VER="12"
+          cat << EOT > .env
           export BUILD_DATE=$(date "+%4Y-%m-%d %H:%M:%S")
           export TIMESTAMP=$(date "+%4Y%m%d%H%M%S")
           export SOGO_VER=$(curl --silent https://api.github.com/repos/Alinto/sogo/releases/latest | jq -r '.tag_name | split("-")[1]')
+          export APP_VER=$(yq eval -r '.appVersion' charts/sogo/Chart.yaml)
+          EOT
+          source .env
+          if [[ "$SOGO_VER" == "$APP_VER" ]]
+          then
+            count=$(( $(git rev-list $(git describe --tags --abbrev=0).. --count) + 1 ))
+          else
+            count=0
+          fi
+          echo "export count=${count}" >> .env
           podman build \
             --tag sogo \
             --build-arg BUILD_NUMBER="${GITHUB_RUN_NUMBER}" \
@@ -38,20 +49,57 @@ jobs:
             --build-arg SOGO_VER="${SOGO_VER}" \
             --build-arg VCS_REF="${GITHUB_SHA}" \
             --build-arg BUILD_DATE="${BUILD_DATE}" \
+            --annotation "org.opencontainers.image.created=${BUILD_DATE}" \
+            --annotation "org.opencontainers.image.vendor=Mithrandir1 <https://github.com/mithrandir1>" \
+            --annotation "org.opencontainers.image.title="OGo Groupware" \
+            --annotation "org.opencontainers.image.description=SOGo is a groupware server with a focus on scalability and open standards." \
+            --annotation "org.opencontainers.image.version=${SOGO_VER}-debian-${DEBIAN_VER}-r${count}" \
+            --annotation "org.opencontainers.image.url=https://github.com/mithrandir1/containers" \
+            --annotation "org.opencontainers.image.source=https://github.com/Alinto/sogo" \
+            --annotation "org.opencontainers.image.licenses=GPL-2.0" \
+            --annotation "org.opencontainers.image.revision=${GITHUB_SHA}" \
+            --annotation "org.opencontainers.image.base.name=sogo" \
             --file Containerfile \
             .
           podman push --creds="${GITHUB_REPOSITORY_OWNER}:${GHCR_TOKEN}" \
-            sogo docker://ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:${SOGO_VER}-debian-${DEBIAN_VER}-r${GITHUB_RUN_NUMBER}
+            sogo docker://ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:${SOGO_VER}-debian-${DEBIAN_VER}-r${count}
           podman push --creds="${GITHUB_REPOSITORY_OWNER}:${GHCR_TOKEN}" \
             sogo docker://ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:latest
 
       - name: 'Package Helm Chart'
         shell: bash
-        env:
-          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
         run: |
+          source .env
           export chart_name=$(yq eval -r '.name' charts/sogo/Chart.yaml)
           export chart_version=$(yq eval -r '.version' charts/sogo/Chart.yaml)
+          export image_version="${SOGO_VER}-debian-${DEBIAN_VER}-r${count}"
+
+          # calculate new chart version
+          a=( ${chart_version//./ } )
+          if [[ $count -eq 0 ]]
+          then
+            ((a[1]++))
+          fi
+          a[2]=$count
+          export chart_version="${a[0]}.${a[1]}.${a[2]}"
+
+          yq eval --inplace '.appVersion = env(SOGO_VER)' charts/sogo/Chart.yaml
+          yq eval --inplace '.version = env(chart_version)' charts/sogo/Chart.yaml
+          yq eval --inplace '.image.tag = env(image_version)' charts/sogo/values.yaml
           helm package charts/sogo --dependency-update
           echo ${GHCR_TOKEN} | helm registry login --username ${GITHUB_REPOSITORY_OWNER} --password-stdin ghcr.io
           helm push ${chart_name}-${chart_version}.tgz oci://ghcr.io/${GITHUB_REPOSITORY_OWNER}/
+
+      - name: 'Update Git'
+        shell: bash
+        run: |
+          source .env
+          export chart_version=$(yq eval -r '.version' charts/sogo/Chart.yaml)
+
+          git add charts/sogo/Chart.yaml
+          git add charts/sogo/values.yaml
+          git commit -m "version update to ${chart_version}"
+          if [[ $count -eq 0 ]]
+          then
+            git tag $SOGO_VER
+          git push && git push --tags
