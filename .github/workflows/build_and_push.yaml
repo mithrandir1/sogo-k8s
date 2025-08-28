@@ -97,7 +97,7 @@ jobs:
           git add charts/sogo/Chart.yaml
           git add charts/sogo/values.yaml
           git commit -m "version update to ${chart_version}"
-          if [[ $count -eq 0 ]]
-          then
+          if [[ $count -eq 0 ]]; then
             git tag $SOGO_VER
+          fi
           git push && git push --tags
