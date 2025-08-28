@@ -27,20 +27,16 @@ jobs:
       - name: 'Build Container Image'
         shell: bash
         run: |
-          cat << EOT > .env
-          export BUILD_DATE="$(date \"+%4Y-%m-%d %H:%M:%S\")"
+          export BUILD_DATE=$(date "+%4Y-%m-%d %H:%M:%S")
           export TIMESTAMP=$(date "+%4Y%m%d%H%M%S")
           export SOGO_VER=$(curl --silent https://api.github.com/repos/Alinto/sogo/releases/latest | jq -r '.tag_name | split("-")[1]')
           export APP_VER="$(yq eval -r '.appVersion' charts/sogo/Chart.yaml)"
-          EOT
-          source .env
           if [[ "$SOGO_VER" == "$APP_VER" ]]
           then
             count=$(( $(git rev-list $(git describe --tags --abbrev=0).. --count) + 1 ))
           else
             count=0
           fi
-          echo "export count=${count}" >> .env
           podman build \
             --tag sogo \
             --build-arg BUILD_NUMBER="${GITHUB_RUN_NUMBER}" \
@@ -65,6 +61,8 @@ jobs:
             sogo docker://ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:${SOGO_VER}-debian-${DEBIAN_VER}-r${count}
           podman push --creds="${GITHUB_REPOSITORY_OWNER}:${GHCR_TOKEN}" \
             sogo docker://ghcr.io/${GITHUB_REPOSITORY_OWNER}/sogo:latest
+          echo "export SOGO_VER=${SOGO_VER}" > .env
+          echo "export count=${count}" >> .env
 
       - name: 'Package Helm Chart'
         shell: bash
