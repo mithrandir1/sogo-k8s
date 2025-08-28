@@ -47,7 +47,7 @@ jobs:
             --build-arg BUILD_DATE="${BUILD_DATE}" \
             --annotation "org.opencontainers.image.created=${BUILD_DATE}" \
             --annotation "org.opencontainers.image.vendor=Mithrandir1 <https://github.com/mithrandir1>" \
-            --annotation "org.opencontainers.image.title="OGo Groupware" \
+            --annotation "org.opencontainers.image.title=SOGo Groupware" \
             --annotation "org.opencontainers.image.description=SOGo is a groupware server with a focus on scalability and open standards." \
             --annotation "org.opencontainers.image.version=${SOGO_VER}-debian-${DEBIAN_VER}-r${count}" \
             --annotation "org.opencontainers.image.url=https://github.com/mithrandir1/containers" \
