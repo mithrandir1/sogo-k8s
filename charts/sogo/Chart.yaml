@@ -2,7 +2,7 @@ annotations:
   category: Mail
   licenses: Apache-2.0
 apiVersion: v2
-appVersion: "5.10.0"
+appVersion: "5.12.3"
 dependencies:
   - name: common
     repository: oci://registry-1.docker.io/bitnamicharts
@@ -21,7 +21,6 @@ dependencies:
     tags:
       - memcached
     version: 6.x.x
-    
 description: SOGo is a groupware server with a focus on scalability and open standards.
 home: "https://www.sogo.nu/"
 maintainers:
@@ -32,4 +31,4 @@ sources:
   - https://github.com/Alinto/sogo
   - https://github.com/mithrandir1/helm-charts
 type: application
-version: 0.1.0
+version: 0.2.0

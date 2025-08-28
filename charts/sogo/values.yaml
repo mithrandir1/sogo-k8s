@@ -16,7 +16,6 @@ global:
   ##
   imagePullSecrets: []
   storageClass: ""
-
 ## @section Common parameters
 ##
 
@@ -41,7 +40,6 @@ commonLabels: {}
 ## @param extraDeploy Array of extra objects to deploy with the release (evaluated as a template).
 ##
 extraDeploy: []
-
 ## @section Dovecot parameters
 ##
 
@@ -57,7 +55,7 @@ extraDeploy: []
 image:
   registry: ghcr.io
   repository: mithrandir1/sogo
-  tag: "20231208185203"
+  tag: "5.12.3-debian-12-r0"
   digest: ""
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -83,7 +81,6 @@ replicaCount: 1
 ##
 
 sogo:
-
   title: "Sogo"
   language: English
   domain: example.com
@@ -97,8 +94,7 @@ sogo:
       drafts: Drafts
       sent: Sent
       trash: Trash
-      junk: Junk  
-
+      junk: Junk
   ldap:
     enabled: false
     uris: []
@@ -113,20 +109,16 @@ sogo:
     bindPassword: ""
     filter: "(&(sAMAccountName=%n)(objectClass=person)(mail=*)(!(userAccountControl=514)))"
     debug_level: 0
-
 mariadb:
   enabled: false
-
 externalDatabase:
   host: "127.0.0.1"
   port: "3306"
   user: "sogo"
   password: ""
   existingSecret: ""
-
 containerPorts:
   http: 20000
-
 ## @param updateStrategy.type Update strategy - only really applicable for deployments with RWO PVs attached
 ## If replicas = 1, an update can get "stuck", as the previous pod remains attached to the
 ## PV, and the "incoming" pod can never start. Changing the strategy to "Recreate" will
@@ -230,7 +222,6 @@ persistence:
   ##     app: my-app
   ##
   selector: {}
-
 ## @param podAffinityPreset Pod affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`
 ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
 ##
@@ -378,7 +369,6 @@ podAnnotations: {}
 ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 ##
 podLabels: {}
-
 ## Autoscaling configuration
 ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
 ## @param autoscaling.enabled Enable autoscaling for DOVECOT
@@ -393,7 +383,6 @@ autoscaling:
   maxReplicas: ""
   targetCPU: ""
   targetMemory: ""
-
 ## Kubernetes configuration. For minikube, set this to NodePort, elsewhere use LoadBalancer
 ##
 service:
@@ -409,7 +398,6 @@ service:
     imap: 143
     submission: 587
     imaps: 993
-
   ## @param service.loadBalancerSourceRanges Restricts access for LoadBalancer (only with `service.type: LoadBalancer`)
   ## e.g:
   ## loadBalancerSourceRanges:
@@ -465,7 +453,6 @@ ingress:
   ## @param ingress.enabled Enable ingress controller resource
   ##
   enabled: false
-
   ## @param ingress.pathType Ingress Path type
   ##
   pathType: ImplementationSpecific
@@ -557,7 +544,6 @@ ingress:
   ##             name: http
   ##
   extraRules: []
-
 ## 'volumePermissions' init container parameters
 ## Changes the owner and group of the persistent volume mount point to runAsUser:fsGroup values
 ##   based on the *podSecurityContext/*containerSecurityContext parameters
@@ -604,7 +590,6 @@ volumePermissions:
   ##
   containerSecurityContext:
     runAsUser: 0
-
 ## ServiceAccount configuration
 ##
 serviceAccount:
@@ -621,6 +606,5 @@ serviceAccount:
   ## @param serviceAccount.automountServiceAccountToken Automount service account token for the server service account
   ##
   automountServiceAccountToken: true
-
 ## @section Other Parameters
 ##
