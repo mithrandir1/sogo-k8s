@@ -117,7 +117,6 @@ sogo:
       bindPassword: ""
       filter: "(&(sAMAccountName=%n)(objectClass=person)(mail=*)(!(userAccountControl=514)))"
       debug_level: 0
-
   containerPorts:
     http: 20000
   ## @param updateStrategy.type Update strategy - only really applicable for deployments with RWO PVs attached
@@ -446,7 +445,6 @@ sogo:
     ##     timeoutSeconds: 300
     ##
     sessionAffinityConfig: {}
-
 memcached:
   ## memcached image version
   ## @param image.registry memcached image registry
@@ -495,7 +493,6 @@ memcached:
     extraArgs: []
     ## @param memcached.config.verbosity Verbosity level (0-2)
     verbosity: 0
-
   containerPorts:
     memcached: 11211
   ## @param updateStrategy.type Update strategy - only really applicable for deployments with RWO PVs attached
@@ -761,10 +758,8 @@ memcached:
     ##     timeoutSeconds: 300
     ##
     sessionAffinityConfig: {}
-
 mariadb:
   enabled: false
-
 externalDatabase:
   type: "postgresql"
   host: "127.0.0.1"
@@ -773,7 +768,6 @@ externalDatabase:
   user: "sogo"
   password: ""
   existingSecret: ""
-
 ## Configure the ingress resource that allows you to access the
 ## Sogo installation. Set up the URL
 ## ref: https://kubernetes.io/docs/user-guide/ingress/
@@ -937,3 +931,6 @@ serviceAccount:
   automountServiceAccountToken: true
 ## @section Other Parameters
 ##
+
+image:
+  tag: 5.12.3-debian-12-r2
