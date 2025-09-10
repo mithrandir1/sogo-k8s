@@ -12,6 +12,7 @@ metadata:
   annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
 data:
+  {{- with .Values.sogo.config  }}
   sogo.conf: |
     {
       /* *********************  Main SOGo configuration file  **********************
@@ -31,29 +32,27 @@ data:
       * **************************************************************************/
 
       /* Database configuration (mysql://, postgresql:// or oracle://) */
-      SOGoProfileURL          = mysql://{{ include sogo.databaseUser }}:{{ include sogo.databasePassword }}@{{ include sogo.databaseHost }}:{{ include sogo.databasePort }}/{{ include sogo.databaseName }}/sogo_user_profile;
-      OCSFolderInfoURL        = mysql://{{ include sogo.databaseUser }}:{{ include sogo.databasePassword }}@{{ include sogo.databaseHost }}:{{ include sogo.databasePort }}/{{ include sogo.databaseName }}/sogo_folder_info;
-      OCSSessionsFolderURL    = mysql://{{ include sogo.databaseUser }}:{{ include sogo.databasePassword }}@{{ include sogo.databaseHost }}:{{ include sogo.databasePort }}/{{ include sogo.databaseName }}/sogo_sessions_folder;
-      OCSEMailAlarmsFolderURL = mysql://{{ include sogo.databaseUser }}:{{ include sogo.databasePassword }}@{{ include sogo.databaseHost }}:{{ include sogo.databasePort }}/{{ include sogo.databaseName }}/sogo_alarms_folder;
-      OCSStoreURL             = mysql://{{ include sogo.databaseUser }}:{{ include sogo.databasePassword }}@{{ include sogo.databaseHost }}:{{ include sogo.databasePort }}/{{ include sogo.databaseName }}/sogo_store;
-      OCSAclURL               = mysql://{{ include sogo.databaseUser }}:{{ include sogo.databasePassword }}@{{ include sogo.databaseHost }}:{{ include sogo.databasePort }}/{{ include sogo.databaseName }}/sogo_acl;
-      OCSCacheFolderURL       = mysql://{{ include sogo.databaseUser }}:{{ include sogo.databasePassword }}@{{ include sogo.databaseHost }}:{{ include sogo.databasePort }}/{{ include sogo.databaseName }}/sogo_cache_folder;
+      SOGoProfileURL          = {{ ( include "sogo.databaseURL" $ ) }}/sogo_user_profile;
+      OCSFolderInfoURL        = {{ ( include "sogo.databaseURL" $ ) }}/sogo_folder_info;
+      OCSSessionsFolderURL    = {{ ( include "sogo.databaseURL" $ ) }}/sogo_sessions_folder;
+      OCSEMailAlarmsFolderURL = {{ ( include "sogo.databaseURL" $ ) }}/sogo_alarms_folder;
+      OCSStoreURL             = {{ ( include "sogo.databaseURL" $ ) }}/sogo_store;
+      OCSAclURL               = {{ ( include "sogo.databaseURL" $ ) }}/sogo_acl;
+      OCSCacheFolderURL       = {{ ( include "sogo.databaseURL" $ ) }}/sogo_cache_folder;
+      OCSOpenIdURL            = {{ ( include "sogo.databaseURL" $ ) }}/sogo_openid;
 
       /* Mail */
-      SOGoDraftsFolderName = "{{ .Values.sogo.imap.folderNames.drafts }}";
-      SOGoSentFolderName = "{{ .Values.sogo.imap.folderNames.sent }}";
-      SOGoTrashFolderName = "{{ .Values.sogo.imap.folderNames.trash }}";
-      SOGoJunkFolderName = "{{ .Values.sogo.imap.folderNames.junk }}";
-      SOGoIMAPServer = "imap://{{ .Values.sogo.imap.server.host }}:{{ .Values.sogo.imap.server.port }}/?tls=NO";
-      SOGoSieveServer = "sieve://{{ .Values.sogo.imap.server.host }}:{{ .Values.sogo.imap.server.sieveport }}";
-      SOGoSMTPServer = "smtp://{{ .Values.sogo.imap.server.host }}:{{ .Values.sogo.imap.server.smtpport }}/?tls=NO";
-      SOGoMailDomain = {{ .Values.sogo.domain }};
+      SOGoDraftsFolderName = "{{ .imap.folderNames.drafts }}";
+      SOGoSentFolderName = "{{ .imap.folderNames.sent }}";
+      SOGoTrashFolderName = "{{ .imap.folderNames.trash }}";
+      SOGoJunkFolderName = "{{ .imap.folderNames.junk }}";
+      SOGoIMAPServer = "imaps://{{ .imap.server.host }}:{{ .imap.server.port }}/?tls=YES";
+      SOGoSieveServer = "sieve://{{ .imap.server.host }}:{{ .imap.server.sieveport }}/?tls=YES";
+      SOGoSMTPServer = "smtp://{{ .imap.server.host }}:{{ .imap.server.smtpport }}/?tls=YES";
+      SOGoMailDomain = {{ .domain }};
       SOGoMailingMechanism = smtp;
       //SOGoForceExternalLoginWithEmail = NO;
       //SOGoMailSpoolPath = /var/spool/sogo;
-      NGImap4AuthMechanism = "plain";
-      NGImap4ConnectionStringSeparator = "/";
-      SOGoSMTPAuthenticationType = "PLAIN";
       SOGoMailUseOutlookStyleReplies = YES;
 
       /* Notifications */
@@ -64,23 +63,42 @@ data:
       /* Authentication */
       //SOGoPasswordChangeEnabled = YES;
       SOGoPasswordRecoveryMode = Disabled;
+      {{- if .openid.enabled }}
+      SOGoAuthenticationType = openid;
+      SOGoXSRFValidationEnabled = NO;
+      SOGoSMTPAuthenticationType = xoauth2;
+      NGImap4AuthMechanism = xoauth2;
+      SOGoOpenIdConfigUrl = "https://{{ .openid.url }}/.well-known/openid-configuration";
+      SOGoOpenIdClient = {{ .openid.clientid }};
+      SOGoOpenIdClientSecret = {{ .openid.secret }};
+      SOGoOpenIdScope = "{{ .openid.scopes }}";
+      SOGoOpenIdEmailParam = "{{ .openid.name_claim }}";
+      SOGoOpenIdEnableRefreshToken = YES;
+      SOGoOpenIdTokenCheckInterval = 30;
+      SOGoOpenIdLogoutEnabled = YES;
+      {{- else }}
+      SOGoSMTPAuthenticationType = "PLAIN";
+      NGImap4AuthMechanism = "plain";
+      NGImap4ConnectionStringSeparator = "/";
+      {{- end }}
 
+      {{- if .ldap.enabled }}
       SOGoUserSources = (
         {
           type = ldap;
-          CNFieldName = {{ .Values.sogo.ldap.cn }};
-          IDFieldName = {{ .Values.sogo.ldap.id }};
-          UIDFieldName = {{ .Values.sogo.ldap.uid }};
-          baseDN = {{ .Values.sogo.ldap.base }};
-          scope = {{ .Values.sogo.ldap.scope }};
-          bindDN = "{{ .Values.sogo.ldap.bindDn }}";
-          bindFields = ({{ .Values.sogo.ldap.uid }});
-          bindPassword = "{{ .Values.sogo.ldap.bindPassword }}";
+          CNFieldName = {{ .ldap.cn }};
+          IDFieldName = {{ .ldap.id }};
+          UIDFieldName = {{ .ldap.uid }};
+          baseDN = {{ .ldap.base }};
+          scope = {{ .ldap.scope }};
+          bindDN = "{{ .ldap.bindDn }}";
+          bindFields = ({{ .ldap.uid }});
+          bindPassword = "{{ .ldap.bindPassword }}";
           userPasswordAlgorithm = "crypt";
           canAuthenticate = YES;
           displayName = "Public";
-          hostname = {{ join "" .Values.sogo.ldap.uris }};
-          filter = "{{ .Values.sogo.ldap.filter }}";
+          hostname = {{ join "" .ldap.uris }};
+          filter = "{{ .ldap.filter }}";
           id = directory;
           isAddressBook = YES;
           mapping = {
@@ -98,15 +116,15 @@ data:
           }
         }
       );
+      {{- end }}
 
       /* Web Interface */
-      SOGoPageTitle = "{{ .Values.sogo.title }}";
+      SOGoPageTitle = "{{ .title }}";
       SOGoVacationEnabled = YES;
       SOGoForwardEnabled = YES;
       SOGoSieveScriptsEnabled = YES;
       //SOGoMailAuxiliaryUserAccountsEnabled = YES;
       //SOGoTrustProxyAuthentication = NO;
-      //SOGoXSRFValidationEnabled = NO;
       SOGoFirstDayOfWeek = 1;
       SOGoFirstWeekOfYear = First4DayWeek;
       SOGoMailMessageForwarding = inline;
@@ -114,16 +132,16 @@ data:
       SOGoEnableEMailAlarms = YES;
 
       /* General - SOGoTimeZone *MUST* be defined */
-      SOGoLanguage = {{ .Values.sogo.language }};
-      SOGoTimeZone = {{ .Values.sogo.timezone }};
+      SOGoLanguage = {{ .language }};
+      SOGoTimeZone = {{ .timezone }};
       //SOGoCalendarDefaultRoles = (
       //  PublicDAndTViewer,
       //  ConfidentialDAndTViewer
       //);
-      SOGoSuperUsernames = ({{ join ", " .Values.sogo.superUsers }});
+      SOGoSuperUsernames = ({{ join ", " .superUsers }});
       //SxVMemLimit = 384;
       //WOPidFile = "/var/run/sogo/sogo.pid";
-      //SOGoMemcachedHost = "/var/run/memcached.sock";
+      SOGoMemcachedHost = {{ printf "%s-memcached" ( include "common.names.fullname" $ ) }}
       
       /* Debug */
       //SOGoDebugRequests = YES;
@@ -147,19 +165,20 @@ data:
     # The place where the mail goes. The actual machine name is required no 
     # MX records are consulted. Commonly mailhosts are named mail.domain.com
     UseSTARTTLS=no
-    mailhub={{ .Values.sogo.imap.server.host }}:{{ .Values.sogo.imap.server.smtpport }}
+    mailhub={{ .imap.server.host }}:{{ .imap.server.smtpport }}
 
     # Where will the mail seem to come from?
     #rewriteDomain=
 
     # The full hostname
-    hostname={{ .Values.sogo.domain }}
+    hostname={{ .domain }}
 
     # Are users allowed to set their own From: address?
     # YES - Allow the user to specify their own From: address
     # NO - Use the system generated From: address
     #FromLineOverride=YES
-  {{- if .Values.sogo.ldap.ca_cert }}
+  {{- if .ldap.ca_cert }}
   ca.crt:
-    {{- .Values.sogo.ldap.ca_cert | nindent 4 }}
+    {{- .ldap.ca_cert | nindent 4 }}
+  {{- end }}
   {{- end }}

@@ -13,5 +13,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "common.names.fullname" . }}:{{ .Values.service.ports.http }}']
+      args: ['{{ include "common.names.fullname" . }}:{{ .Values.sogo.service.ports.http }}']
   restartPolicy: Never

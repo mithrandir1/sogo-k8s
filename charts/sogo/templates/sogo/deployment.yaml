@@ -1,0 +1,189 @@
+apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
+kind: Deployment
+metadata:
+  name: {{ template "common.names.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: sogo
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if not .Values.sogo.autoscaling.enabled }}
+  replicas: {{ .Values.sogo.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
+  {{- if .Values.sogo.updateStrategy }}
+  strategy: {{- toYaml .Values.sogo.updateStrategy | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels: {{- include "common.labels.standard" . | nindent 8 }}
+        {{- if .Values.commonLabels }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 8 }}
+        {{- end }}
+        {{- if .Values.sogo.podLabels }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.sogo.podLabels "context" $) | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{- if .Values.sogo.podAnnotations }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.sogo.podAnnotations "context" $) | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- include "sogo.imagePullSecrets" . | nindent 6 }}
+      serviceAccountName: {{ include "sogo.serviceAccountName" . }}
+      {{- if .Values.sogo.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.sogo.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.sogo.affinity }}
+      affinity: {{- include "common.tplvalues.render" (dict "value" .Values.sogo.affinity "context" $) | nindent 8 }}
+      {{- else }}
+      affinity:
+        podAffinity: {{- include "common.affinities.pods" (dict "type" .Values.sogo.podAffinityPreset "context" $) | nindent 10 }}
+        podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.sogo.podAntiAffinityPreset "context" $) | nindent 10 }}
+        nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.sogo.nodeAffinityPreset.type "key" .Values.sogo.nodeAffinityPreset.key "values" .Values.sogo.nodeAffinityPreset.values) | nindent 10 }}
+      {{- end }}
+      {{- if .Values.sogo.schedulerName }}
+      schedulerName: {{ .Values.sogo.schedulerName }}
+      {{- end }}
+      {{- if .Values.sogo.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- include "common.tplvalues.render" (dict "value" .Values.sogo.topologySpreadConstraints "context" .) | nindent 8 }}
+      {{- end }}
+      priorityClassName: {{ .Values.sogo.priorityClassName | quote }}
+      {{- if .Values.sogo.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" (dict "value" .Values.sogo.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.sogo.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.sogo.tolerations "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.sogo.hostAliases }}
+      # yamllint disable rule:indentation
+      hostAliases: {{- include "common.tplvalues.render" (dict "value" .Values.sogo.hostAliases "context" $) | nindent 8 }}
+      # yamllint enable rule:indentation
+      {{- end }}
+      initContainers:
+        {{- if .Values.sogo.initContainers }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.sogo.initContainers "context" $) | nindent 8 }}
+        {{- end }}
+        {{- if and .Values.volumePermissions.enabled .Values.persistence.enabled }}
+        - name: volume-permissions
+          image: {{ include "sogo.volumePermissions.image" . }}
+          imagePullPolicy: {{ .Values.volumePermissions.image.pullPolicy | quote }}
+          command:
+            - sh
+            - -c
+            - |
+              mkdir -p "/srv/mail"
+              chown -R "{{ .Values.sogo.containerSecurityContext.runAsUser }}:{{ .Values.sogo.podSecurityContext.fsGroup }}" "/srv/mail"
+          securityContext:
+            runAsUser: 0
+          {{- if .Values.volumePermissions.resources }}
+          resources: {{- toYaml .Values.volumePermissions.resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: sogo-data
+              mountPath: /srv/mail
+        {{- end }}
+      containers:
+        - name: {{ include "common.names.fullname" . }}
+          image: {{ template "sogo.image" . }}
+          imagePullPolicy: {{ .Values.sogo.image.pullPolicy | quote }}
+          {{- if .Values.sogo.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.sogo.command "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.sogo.args }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.sogo.args "context" $) | nindent 12 }}
+          {{- end }}
+          securityContext:
+            runAsUser: 0
+          env:
+            - name: SOGO_LDAP_DN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "sogo.secretName" . }}
+                  key: {{ include "sogo.ldapUsernameKey" . | quote }}
+            - name: SOGO_LDAP_PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "sogo.secretName" . }}
+                  key: {{ include "sogo.ldapPasswordKey" . | quote }}
+            {{- if .Values.sogo.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.sogo.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          envFrom:
+            {{- if .Values.sogo.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.sogo.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.sogo.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.sogo.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          {{- if .Values.sogo.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.sogo.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.sogo.containerPorts.http }}
+          {{- if .Values.sogo.customStartupProbe }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" .Values.sogo.customStartupProbe "context" $) | nindent 12 }}
+          {{- else if .Values.sogo.startupProbe.enabled }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.sogo.startupProbe.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.sogo.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.sogo.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.sogo.startupProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.sogo.startupProbe.successThreshold }}
+            failureThreshold: {{ .Values.sogo.startupProbe.failureThreshold }}
+          {{- end }}
+          {{- if .Values.sogo.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.sogo.customLivenessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.sogo.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.sogo.livenessProbe.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.sogo.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.sogo.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.sogo.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.sogo.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.sogo.livenessProbe.failureThreshold }}
+          {{- end }}
+          {{- if .Values.sogo.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.sogo.customReadinessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.sogo.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.sogo.readinessProbe.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.sogo.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.sogo.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.sogo.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.sogo.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.sogo.readinessProbe.failureThreshold }}
+          {{- end }}
+          {{- if .Values.sogo.resources }}
+          resources: {{- toYaml .Values.sogo.resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/sogo
+            {{- if .Values.sogo.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.sogo.extraVolumeMounts "context" $) | nindent 12 }}
+            {{- end }}
+        {{- if .Values.sogo.sidecars }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.sogo.sidecars "context" $) | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "common.names.fullname" . }}
+        {{- if .Values.sogo.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.sogo.extraVolumes "context" $) | nindent 8 }}
+        {{- end }}

@@ -2,7 +2,14 @@
 Return the proper sogo image name
 */}}
 {{- define "sogo.image" -}}
-{{ include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global) }}
+{{ include "common.images.image" (dict "imageRoot" .Values.sogo.image "global" .Values.global) }}
+{{- end -}}
+
+{{/*
+Return the proper memcached image name
+*/}}
+{{- define "sogo.memcached.image" -}}
+{{ include "common.images.image" (dict "imageRoot" .Values.memcached.image "global" .Values.global) }}
 {{- end -}}
 
 {{/*
@@ -16,7 +23,7 @@ Return the proper image name (for the init container volume-permissions image)
 Return the proper Docker Image Registry Secret Names
 */}}
 {{- define "sogo.imagePullSecrets" -}}
-{{- include "common.images.pullSecrets" (dict "images" (list .Values.image .Values.volumePermissions.image) "global" .Values.global) -}}
+{{- include "common.images.pullSecrets" (dict "images" (list .Values.sogo.image .Values.volumePermissions.image) "global" .Values.global) -}}
 {{- end -}}
 
 {{/*
@@ -61,15 +68,15 @@ Compile all warnings into a single message.
 Sogo credential secret name
 */}}
 {{- define "sogo.secretName" -}}
-{{- coalesce .Values.existingSecret (include "common.names.fullname" .) -}}
+{{- coalesce .Values.sogo.existingSecret (include "common.names.fullname" .) -}}
 {{- end -}}
 
 {{/*
 Sogo ldap username secret key
 */}}
 {{- define "sogo.ldapUsernameKey" -}}
-{{- if .Values.existingSecret -}}
-    {{- print .Values.existingSecretLDAPUsernamedKey -}}
+{{- if .Values.sogo.existingSecret -}}
+    {{- print .Values.sogo.existingSecretLDAPUsernamedKey -}}
 {{- else -}}
     {{- print "ldap_dn" -}}
 {{- end -}}
@@ -79,26 +86,26 @@ Sogo ldap username secret key
 Sogo ldap password secret key
 */}}
 {{- define "sogo.ldapPasswordKey" -}}
-{{- if .Values.existingSecret -}}
-    {{- print .Values.existingSecretLDAPPasswordKey -}}
+{{- if .Values.sogo.existingSecret -}}
+    {{- print .Values.sogo.existingSecretLDAPPasswordKey -}}
 {{- else -}}
     {{- print "ldap_password" -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Sogo doveadm password secret key
+Return the Database Type
 */}}
-{{- define "sogo.doveadmPasswordKey" -}}
-{{- if .Values.existingSecret -}}
-    {{- print .Values.existingSecretDOVEADMPasswordKey -}}
+{{- define "sogo.databaseType" -}}
+{{- if $.Values.mariadb.enabled }}
+    {{- printf "%s" "mysql" -}}
 {{- else -}}
-    {{- print "doveadm_password" -}}
+    {{- printf "%s" .Values.externalDatabase.type -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Return the MariaDB Hostname
+Return the Database Hostname
 */}}
 {{- define "sogo.databaseHost" -}}
 {{- if .Values.mariadb.enabled }}
@@ -113,7 +120,7 @@ Return the MariaDB Hostname
 {{- end -}}
 
 {{/*
-Return the MariaDB Port
+Return the Database Port
 */}}
 {{- define "sogo.databasePort" -}}
 {{- if .Values.mariadb.enabled }}
@@ -124,7 +131,7 @@ Return the MariaDB Port
 {{- end -}}
 
 {{/*
-Return the MariaDB Database Name
+Return the Database Name
 */}}
 {{- define "sogo.databaseName" -}}
 {{- if .Values.mariadb.enabled }}
@@ -135,7 +142,7 @@ Return the MariaDB Database Name
 {{- end -}}
 
 {{/*
-Return the MariaDB User
+Return the Database User
 */}}
 {{- define "sogo.databaseUser" -}}
 {{- if .Values.mariadb.enabled }}
@@ -146,7 +153,7 @@ Return the MariaDB User
 {{- end -}}
 
 {{/*
-Return the password of the MariaDB User
+Return the password of the Database User
 */}}
 {{- define "sogo.databasePassword" -}}
 {{- if .Values.mariadb.enabled }}
@@ -157,7 +164,7 @@ Return the password of the MariaDB User
 {{- end -}}
 
 {{/*
-Return the MariaDB Secret Name
+Return the Database Secret Name
 */}}
 {{- define "sogo.databaseSecretName" -}}
 {{- if .Values.mariadb.enabled }}
@@ -170,5 +177,20 @@ Return the MariaDB Secret Name
     {{- include "common.tplvalues.render" (dict "value" .Values.externalDatabase.existingSecret "context" $) -}}
 {{- else -}}
     {{- printf "%s-externaldb" (include "common.names.fullname" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the Database URL
+*/}}
+{{- define "sogo.databaseURL" -}}
+{{- if .Values.mariadb.enabled }}
+    {{- with .Values.mariadb.auth -}}
+    {{- printf "mysql://%s:%s@%s:3306/%s" .username .password (include "sogo.mariadb.fullname" $) .database -}}
+    {{- end -}}
+{{- else -}}
+    {{- with .Values.externalDatabase -}}
+    {{- printf "%s://%s:%s@%s:%d/%s" .type .user .password .host ( .port | int ) .database -}}
+    {{- end -}}
 {{- end -}}
 {{- end -}}

@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.commonAnnotations .Values.sogo.service.annotations }}
+  annotations:
+    {{- if .Values.commonAnnotations }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.commonAnnotations "context" $) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.sogo.service.annotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.sogo.service.annotations "context" $) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+spec:
+  type: {{ .Values.sogo.service.type }}
+  {{- if .Values.sogo.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.sogo.service.sessionAffinity }}
+  {{- end }}
+  {{- if .Values.sogo.service.sessionAffinityConfig }}
+  sessionAffinityConfig: {{- include "common.tplvalues.render" (dict "value" .Values.sogo.service.sessionAffinityConfig "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if and .Values.sogo.service.clusterIP (eq .Values.sogo.service.type "ClusterIP") }}
+  clusterIP: {{ .Values.sogo.service.clusterIP }}
+  {{- end }}
+  {{- if (and (eq .Values.sogo.service.type "LoadBalancer") (not (empty .Values.sogo.service.loadBalancerIP))) }}
+  loadBalancerIP: {{ .Values.sogo.service.loadBalancerIP }}
+  {{- end }}
+  {{- if and (eq .Values.sogo.service.type "LoadBalancer") .Values.sogo.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges: {{- toYaml .Values.sogo.service.loadBalancerSourceRanges | nindent 4 }}
+  {{- end }}
+  {{- if or (eq .Values.sogo.service.type "LoadBalancer") (eq .Values.sogo.service.type "NodePort") }}
+  externalTrafficPolicy: {{ .Values.sogo.service.externalTrafficPolicy | quote }}
+  {{- end }}
+  ports:
+    - name: http
+      port: {{ .Values.sogo.service.ports.http }}
+      targetPort: http
+      {{- if and (or (eq .Values.sogo.service.type "NodePort") (eq .Values.sogo.service.type "LoadBalancer")) (not (empty .Values.sogo.service.nodePorts.http)) }}
+      nodePort: {{ .Values.sogo.service.nodePorts.http }}
+      {{- else if eq .Values.sogo.service.type "ClusterIP" }}
+      nodePort: null
+      {{- end }}
+    {{- if .Values.sogo.service.extraPorts }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.sogo.service.extraPorts "context" $) | nindent 4 }}
+    {{- end }}
+  selector: {{- include "common.labels.matchLabels" . | nindent 4 }}
