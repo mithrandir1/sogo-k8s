@@ -172,6 +172,8 @@ spec:
           resources: {{- toYaml .Values.sogo.resources | nindent 12 }}
           {{- end }}
           volumeMounts:
+            - name: config-template
+              mountPath: /usr/share/doc/sogo
             - name: config
               mountPath: /etc/sogo
             {{- if .Values.sogo.extraVolumeMounts }}
@@ -181,9 +183,11 @@ spec:
         {{- include "common.tplvalues.render" (dict "value" .Values.sogo.sidecars "context" $) | nindent 8 }}
         {{- end }}
       volumes:
-        - name: config
+        - name: config-template
           configMap:
             name: {{ template "common.names.fullname" . }}
+        - name: config
+          emptyDir: {}
         {{- if .Values.sogo.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.sogo.extraVolumes "context" $) | nindent 8 }}
         {{- end }}

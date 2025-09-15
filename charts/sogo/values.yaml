@@ -91,6 +91,9 @@ sogo:
       server:
         host: "127.0.0.1"
         port: "143"
+        ssl: false
+        sievePort: "4190"
+        smtpPort: "25"
       folderNames:
         drafts: Drafts
         sent: Sent
@@ -99,15 +102,14 @@ sogo:
     openid:
       enabled: false
       url: https://keycloak.example.com/realms/master
-      clientid: sogo
+      clientId: sogo
       secret: ""
       scopes: "openid profile email"
-      name_claim: "preferred_username"
+      nameClaim: "preferred_username"
     ldap:
       enabled: false
       uris: []
-      tls_require_cert: "always"
-      ca_cert:
+      ca:
       cn: displayName
       id: sAMAccountName
       uid: sAMAccountName
@@ -116,9 +118,17 @@ sogo:
       bindDn: ""
       bindPassword: ""
       filter: "(&(sAMAccountName=%n)(objectClass=person)(mail=*)(!(userAccountControl=514)))"
-      debug_level: 0
   containerPorts:
     http: 20000
+  ## @param existingSecret Name of a secret with the application password
+  ##
+  existingSecret:
+    name: ""
+    ldapUserKey: ldap-user
+    ldapPasswordKey: ldap-password
+    oidcClientId: oidc-client-id
+    oidcSecretKey: oidc-secret
+  
   ## @param updateStrategy.type Update strategy - only really applicable for deployments with RWO PVs attached
   ## If replicas = 1, an update can get "stuck", as the previous pod remains attached to the
   ## PV, and the "incoming" pod can never start. Changing the strategy to "Recreate" will
@@ -170,8 +180,6 @@ sogo:
   ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   ##
   tolerations: []
-  ## @param existingSecret Name of a secret with the application password
-  ##
 
   ## Enable persistence using Persistent Volume Claims
   ## ref: https://kubernetes.io/docs/user-guide/persistent-volumes/
@@ -388,16 +396,12 @@ sogo:
   service:
     ## @param service.type Kubernetes Service type
     ##
-    type: LoadBalancer
+    type: ClusterIP
     ## @param service.ports.http Service HTTP port
     ## @param service.ports.ssh Service SSH port
     ##
     ports:
       http: 80
-      lmtp: 24
-      imap: 143
-      submission: 587
-      imaps: 993
     ## @param service.loadBalancerSourceRanges Restricts access for LoadBalancer (only with `service.type: LoadBalancer`)
     ## e.g:
     ## loadBalancerSourceRanges:
@@ -415,10 +419,6 @@ sogo:
     ##
     nodePorts:
       http: ""
-      lmtp: ""
-      imap: ""
-      submission: ""
-      imaps: ""
     ## @param service.externalTrafficPolicy Enable client source IP preservation
     ## ref https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
     ##
@@ -546,8 +546,6 @@ memcached:
   ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   ##
   tolerations: []
-  ## @param existingSecret Name of a secret with the application password
-  ##
 
   ## @param podAffinityPreset Pod affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`
   ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
