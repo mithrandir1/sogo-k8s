@@ -83,7 +83,7 @@ jobs:
 
           yq eval --inplace '.appVersion = env(SOGO_VER)' charts/sogo/Chart.yaml
           yq eval --inplace '.version = env(chart_version)' charts/sogo/Chart.yaml
-          yq eval --inplace '.image.tag = env(image_version)' charts/sogo/values.yaml
+          yq eval --inplace '.sogo.image.tag = env(image_version)' charts/sogo/values.yaml
           helm package charts/sogo --dependency-update
           echo ${GHCR_TOKEN} | helm registry login --username ${GITHUB_REPOSITORY_OWNER} --password-stdin ghcr.io
           helm push ${chart_name}-${chart_version}.tgz oci://ghcr.io/${GITHUB_REPOSITORY_OWNER}/
