@@ -101,7 +101,7 @@ spec:
           securityContext:
             runAsUser: 0
           env:
-            {{- if .Values.sogo.ldap.enabled }}
+            {{- if .Values.sogo.config.ldap.enabled }}
             - name: SOGO_LDAP_DN
               valueFrom:
                 secretKeyRef:
@@ -113,7 +113,7 @@ spec:
                   name: {{ include "sogo.secretName" . }}
                   key: {{ include "sogo.ldapPasswordKey" . | quote }}
             {{- end }}
-            {{- if .Values.sogo.openid.enabled }}
+            {{- if .Values.sogo.config.openid.enabled }}
             - name: SOGO_OPENID_CLIENT
               valueFrom:
                 secretKeyRef:
