@@ -704,7 +704,7 @@ memcached:
   service:
     ## @param service.type Kubernetes Service type
     ##
-    type: clusterIP
+    type: ClusterIP
     ## @param service.ports.http Service HTTP port
     ## @param service.ports.ssh Service SSH port
     ##

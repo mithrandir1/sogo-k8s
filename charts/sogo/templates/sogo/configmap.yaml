@@ -69,8 +69,8 @@ data:
       SOGoSMTPAuthenticationType = xoauth2;
       NGImap4AuthMechanism = xoauth2;
       SOGoOpenIdConfigUrl = "https://{{ .openid.url }}/.well-known/openid-configuration";
-      SOGoOpenIdClient = {{ .openid.clientId }};
-      SOGoOpenIdClientSecret = {{ .openid.secret }};
+      SOGoOpenIdClient = "${SOGO_OPENID_CLIENT}";
+      SOGoOpenIdClientSecret = "${SOGO_OPENID_SECRET}";
       SOGoOpenIdScope = "{{ .openid.scopes }}";
       SOGoOpenIdEmailParam = "{{ .openid.nameClaim }}";
       SOGoOpenIdEnableRefreshToken = YES;
@@ -91,8 +91,8 @@ data:
           UIDFieldName = {{ .ldap.uid }};
           baseDN = {{ .ldap.base }};
           scope = {{ .ldap.scope }};
-          bindDN = "{{ .ldap.bindDn }}";
-          bindPassword = "{{ .ldap.bindPassword }}";
+          bindDN = "${SOGO_LDAP_DN}";
+          bindPassword = "${SOGO_LDAP_PASSWORD}";
           bindFields = ({{ .ldap.uid }});
           userPasswordAlgorithm = "crypt";
           canAuthenticate = YES;

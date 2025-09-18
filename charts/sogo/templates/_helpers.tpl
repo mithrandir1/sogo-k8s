@@ -68,17 +68,17 @@ Compile all warnings into a single message.
 Sogo credential secret name
 */}}
 {{- define "sogo.secretName" -}}
-{{- coalesce .Values.sogo.existingSecret (include "common.names.fullname" .) -}}
+{{- coalesce .Values.sogo.existingSecret.name (include "common.names.fullname" .) -}}
 {{- end -}}
 
 {{/*
 Sogo ldap username secret key
 */}}
 {{- define "sogo.ldapUsernameKey" -}}
-{{- if .Values.sogo.existingSecret -}}
-    {{- print .Values.sogo.existingSecretLDAPUsernamedKey -}}
+{{- if .Values.sogo.existingSecret.name -}}
+    {{- print .Values.sogo.existingSecret.ldapUserKey -}}
 {{- else -}}
-    {{- print "ldap_dn" -}}
+    {{- print "ldap-dn" -}}
 {{- end -}}
 {{- end -}}
 
@@ -86,10 +86,32 @@ Sogo ldap username secret key
 Sogo ldap password secret key
 */}}
 {{- define "sogo.ldapPasswordKey" -}}
-{{- if .Values.sogo.existingSecret -}}
-    {{- print .Values.sogo.existingSecretLDAPPasswordKey -}}
+{{- if .Values.sogo.existingSecret.name -}}
+    {{- print .Values.sogo.existingSecret.ldapPasswordKey -}}
 {{- else -}}
-    {{- print "ldap_password" -}}
+    {{- print "ldap-password" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Sogo OpenID client id key
+*/}}
+{{- define "sogo.openidClientIdKey" -}}
+{{- if .Values.sogo.existingSecret.name -}}
+    {{- print .Values.sogo.existingSecret.oidcClientId -}}
+{{- else -}}
+    {{- print "oidc-client-id" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Sogo OpenID client secret key
+*/}}
+{{- define "sogo.openidSecretKey" -}}
+{{- if .Values.sogo.existingSecret.name -}}
+    {{- print .Values.sogo.existingSecret.oidcSecretKey -}}
+{{- else -}}
+    {{- print "oidc-secret" -}}
 {{- end -}}
 {{- end -}}
 
