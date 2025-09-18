@@ -19,4 +19,4 @@ sources:
   - https://github.com/Alinto/sogo
   - https://github.com/mithrandir1/helm-charts
 type: application
-version: 0.2.12
+version: 0.2.14
