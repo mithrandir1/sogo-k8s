@@ -42,7 +42,7 @@ spec:
   {{- end }}
   ports:
     - name: memcached
-      port: {{ .Values.memcached.service.ports.http }}
+      port: {{ .Values.memcached.service.ports.memcached }}
       targetPort: memcached
       {{- if and (or (eq .Values.memcached.service.type "NodePort") (eq .Values.memcached.service.type "LoadBalancer")) (not (empty .Values.memcached.service.nodePorts.http)) }}
       nodePort: {{ .Values.memcached.service.nodePorts.http }}
