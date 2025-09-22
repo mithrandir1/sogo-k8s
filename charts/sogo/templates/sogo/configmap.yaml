@@ -72,7 +72,7 @@ data:
       SOGoXSRFValidationEnabled = NO;
       SOGoSMTPAuthenticationType = xoauth2;
       NGImap4AuthMechanism = xoauth2;
-      SOGoOpenIdConfigUrl = "https://{{ .openid.url }}/.well-known/openid-configuration";
+      SOGoOpenIdConfigUrl = "{{ .openid.url }}/.well-known/openid-configuration";
       SOGoOpenIdClient = "${SOGO_OPENID_CLIENT}";
       SOGoOpenIdClientSecret = "${SOGO_OPENID_SECRET}";
       SOGoOpenIdScope = "{{ .openid.scopes }}";
@@ -97,7 +97,7 @@ data:
           scope = {{ .ldap.scope }};
           bindDN = "${SOGO_LDAP_DN}";
           bindPassword = "${SOGO_LDAP_PASSWORD}";
-          bindFields = ({{ .ldap.uid }});
+          bindFields = ("{{ .ldap.uid }}"");
           userPasswordAlgorithm = "crypt";
           canAuthenticate = YES;
           displayName = "Public";
