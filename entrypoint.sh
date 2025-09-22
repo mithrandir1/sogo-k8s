@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set +x
+set -x
 
 template_file=/usr/share/doc/sogo/sogo.conf
 if [[ -e ${template_file} ]]
