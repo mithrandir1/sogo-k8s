@@ -1,9 +1,11 @@
 #!/bin/bash
 
+set +x
+
 template_file=/usr/share/doc/sogo/sogo.conf
 if [[ -e ${template_file} ]]
 then
-  cat ${template_file} > /etc/sogo/sogo.conf
+  cat ${template_file} | envsubst > /etc/sogo/sogo.conf
 fi
 if [[ -d /docker-entrypoint.d ]]
 then
