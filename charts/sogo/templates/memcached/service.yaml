@@ -41,9 +41,9 @@ spec:
   externalTrafficPolicy: {{ .Values.memcached.service.externalTrafficPolicy | quote }}
   {{- end }}
   ports:
-    - name: http
+    - name: memcached
       port: {{ .Values.memcached.service.ports.http }}
-      targetPort: http
+      targetPort: memcached
       {{- if and (or (eq .Values.memcached.service.type "NodePort") (eq .Values.memcached.service.type "LoadBalancer")) (not (empty .Values.memcached.service.nodePorts.http)) }}
       nodePort: {{ .Values.memcached.service.nodePorts.http }}
       {{- else if eq .Values.memcached.service.type "ClusterIP" }}

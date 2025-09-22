@@ -287,8 +287,16 @@ sogo:
   ##
   containerSecurityContext:
     enabled: true
-    runAsUser: 999
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+    runAsGroup: 999
     runAsNonRoot: true
+    runAsUser: 999
+    seccompProfile:
+      type: RuntimeDefault
   ## Configure extra options for startup probe
   ## Sogo core exposes / to unauthenticated requests, making it a good
   ## default startup and readiness path. However, that may not always be the
@@ -603,8 +611,16 @@ memcached:
   ##
   containerSecurityContext:
     enabled: true
-    runAsUser: 11211
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+    runAsGroup: 11211
     runAsNonRoot: true
+    runAsUser: 11211
+    seccompProfile:
+      type: RuntimeDefault
   ## Configure extra options for startup probe
   ## memcached core exposes / to unauthenticated requests, making it a good
   ## default startup and readiness path. However, that may not always be the

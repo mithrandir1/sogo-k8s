@@ -40,6 +40,7 @@ spec:
     spec:
       {{- include "sogo.imagePullSecrets" . | nindent 6 }}
       serviceAccountName: {{ include "sogo.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.automountServiceAccountToken }}
       {{- if .Values.sogo.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.sogo.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
@@ -102,8 +103,9 @@ spec:
           {{- if .Values.sogo.args }}
           args: {{- include "common.tplvalues.render" (dict "value" .Values.sogo.args "context" $) | nindent 12 }}
           {{- end }}
-          securityContext:
-            runAsUser: 0
+          {{- if .Values.sogo.containerSecurityContext.enabled }}
+          securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.sogo.containerSecurityContext "context" $) | nindent 12 }}
+          {{- end }}
           env:
             {{- if .Values.sogo.config.ldap.enabled }}
             - name: SOGO_LDAP_DN
