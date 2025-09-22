@@ -776,8 +776,8 @@ externalDatabase:
   host: "127.0.0.1"
   port: "5432"
   database: "sogo"
-  user: "${SOGO_LDAP_DN}"
-  password: "${SOGO_LDAP_PASSWORD}"
+  user: "${SOGO_DB_USER}"
+  password: "${SOGO_DB_PASSWORD}"
   existingSecret: ""
 ## Configure the ingress resource that allows you to access the
 ## Sogo installation. Set up the URL

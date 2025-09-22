@@ -36,14 +36,14 @@ data:
       * **************************************************************************/
 
       /* Database configuration (mysql://, postgresql:// or oracle://) */
-      SOGoProfileURL          = {{ ( include "sogo.databaseURL" $ ) }}/sogo_user_profile;
-      OCSFolderInfoURL        = {{ ( include "sogo.databaseURL" $ ) }}/sogo_folder_info;
-      OCSSessionsFolderURL    = {{ ( include "sogo.databaseURL" $ ) }}/sogo_sessions_folder;
-      OCSEMailAlarmsFolderURL = {{ ( include "sogo.databaseURL" $ ) }}/sogo_alarms_folder;
-      OCSStoreURL             = {{ ( include "sogo.databaseURL" $ ) }}/sogo_store;
-      OCSAclURL               = {{ ( include "sogo.databaseURL" $ ) }}/sogo_acl;
-      OCSCacheFolderURL       = {{ ( include "sogo.databaseURL" $ ) }}/sogo_cache_folder;
-      OCSOpenIdURL            = {{ ( include "sogo.databaseURL" $ ) }}/sogo_openid;
+      SOGoProfileURL          = "{{ ( include "sogo.databaseURL" $ ) }}/sogo_user_profile";
+      OCSFolderInfoURL        = "{{ ( include "sogo.databaseURL" $ ) }}/sogo_folder_info";
+      OCSSessionsFolderURL    = "{{ ( include "sogo.databaseURL" $ ) }}/sogo_sessions_folder";
+      OCSEMailAlarmsFolderURL = "{{ ( include "sogo.databaseURL" $ ) }}/sogo_alarms_folder";
+      OCSStoreURL             = "{{ ( include "sogo.databaseURL" $ ) }}/sogo_store";
+      OCSAclURL               = "{{ ( include "sogo.databaseURL" $ ) }}/sogo_acl";
+      OCSCacheFolderURL       = "{{ ( include "sogo.databaseURL" $ ) }}/sogo_cache_folder";
+      OCSOpenIdURL            = "{{ ( include "sogo.databaseURL" $ ) }}/sogo_openid";
 
       /* Mail */
       SOGoDraftsFolderName = "{{ .imap.folderNames.drafts }}";

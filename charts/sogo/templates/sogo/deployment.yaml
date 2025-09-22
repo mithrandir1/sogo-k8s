@@ -107,6 +107,18 @@ spec:
           securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.sogo.containerSecurityContext "context" $) | nindent 12 }}
           {{- end }}
           env:
+            {{- if .Values.externalDatabase.existingSecret }}
+            - name: SOGO_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.externalDatabase.existingSecret }}
+                  key: username 
+            - name: SOGO_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.externalDatabase.existingSecret }}
+                  key: password
+            {{- end }}
             {{- if .Values.sogo.config.ldap.enabled }}
             - name: SOGO_LDAP_DN
               valueFrom:
