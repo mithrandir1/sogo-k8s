@@ -40,6 +40,7 @@ RUN echo "Building from repository $SOGO_DEBIAN_REPOSITORY" \
   && apt-get update && apt-get install -y --no-install-recommends \
     sogo \
     sogo-activesync \
+    sope4.9-gdl1-postgresql \
     ssmtp \
   && apt-get autoclean \
   && rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/sogo.list \
