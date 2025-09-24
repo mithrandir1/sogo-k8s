@@ -53,7 +53,7 @@ data:
       SOGoIMAPServer = "imaps://{{ .imap.server.host }}:{{ .imap.server.port }}/?tls=YES";
       SOGoSieveServer = "sieve://{{ .imap.server.host }}:{{ .imap.server.sievePort }}/?tls=YES";
       SOGoSMTPServer = "smtp://{{ .imap.server.host }}:{{ .imap.server.smtpPort }}/?tls=YES";
-      SOGoMailDomain = "{{ .domain }}"";
+      SOGoMailDomain = "{{ .domain }}";
       SOGoMailingMechanism = "smtp";
       //SOGoForceExternalLoginWithEmail = NO;
       //SOGoMailSpoolPath = "/var/spool/sogo";
@@ -136,8 +136,8 @@ data:
       SOGoEnableEMailAlarms = YES;
 
       /* General - SOGoTimeZone *MUST* be defined */
-      SOGoLanguage = "{{ .language }}"";
-      SOGoTimeZone = "{{ .timezone }}"";
+      SOGoLanguage = "{{ .language }}";
+      SOGoTimeZone = "{{ .timezone }}";
       //SOGoCalendarDefaultRoles = (
       //  PublicDAndTViewer,
       //  ConfidentialDAndTViewer
