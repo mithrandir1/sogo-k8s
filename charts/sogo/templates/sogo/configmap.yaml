@@ -36,6 +36,7 @@ data:
       * **************************************************************************/
 
       /* Database configuration (mysql://, postgresql:// or oracle://) */
+      OCSAdminURL             = "{{ ( include "sogo.databaseURL" $ ) }}/sogo_admin";
       SOGoProfileURL          = "{{ ( include "sogo.databaseURL" $ ) }}/sogo_user_profile";
       OCSFolderInfoURL        = "{{ ( include "sogo.databaseURL" $ ) }}/sogo_folder_info";
       OCSSessionsFolderURL    = "{{ ( include "sogo.databaseURL" $ ) }}/sogo_sessions_folder";
