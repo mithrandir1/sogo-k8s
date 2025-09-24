@@ -90,8 +90,8 @@ data:
       SOGoUserSources = (
         {
           type = ldap;
-          CNFieldName = "{{ .ldap.cn }}"";
-          IDFieldName = "{{ .ldap.id }}"";
+          CNFieldName = "{{ .ldap.cn }}";
+          IDFieldName = "{{ .ldap.id }}";
           UIDFieldName = "{{ .ldap.uid }}";
           baseDN = "{{ .ldap.base }}";
           scope = "{{ .ldap.scope }}";
