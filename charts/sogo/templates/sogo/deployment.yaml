@@ -136,12 +136,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ include "sogo.secretName" . }}
-                  key: {{ include "sogo.ldapUsernameKey" . | quote }}
+                  key: {{ include "sogo.openidClientIdKey" . | quote }}
             - name: SOGO_OPENID_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ include "sogo.secretName" . }}
-                  key: {{ include "sogo.ldapPasswordKey" . | quote }}
+                  key: {{ include "sogo.openidSecretKey" . | quote }}
             {{- end }}
             {{- if .Values.sogo.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.sogo.extraEnvVars "context" $) | nindent 12 }}
