@@ -16,6 +16,8 @@ metadata:
   annotations:
     haproxy.org/request-set-header: |
       x-webobjects-server-url https://{{ .Values.ingress.hostname }}
+      x-webobjects-server-name {{ .Values.ingress.hostname }}
+      x-webobjects-server-port 443
     {{- if .Values.ingress.annotations }}
     {{- include "common.tplvalues.render" ( dict "value" .Values.ingress.annotations "context" $) | nindent 4 }}
     {{- end }}
