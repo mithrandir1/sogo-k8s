@@ -102,7 +102,7 @@ data:
           userPasswordAlgorithm = "crypt";
           canAuthenticate = YES;
           displayName = "Public";
-          hostname = {{ join "" .ldap.uris }};
+          hostname = {{ join " " .ldap.uris | quote }};
           filter = "{{ .ldap.filter }}";
           id = directory;
           isAddressBook = YES;
