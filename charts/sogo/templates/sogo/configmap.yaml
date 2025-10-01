@@ -150,13 +150,13 @@ data:
       SOGoMemcachedHost = "{{ printf "%s-memcached" ( include "common.names.fullname" $ ) }}";
       
       /* Debug */
-      //SOGoDebugRequests = YES;
+      SOGoDebugRequests = YES;
       //SoDebugBaseURL = YES;
       //ImapDebugEnabled = YES;
-      //LDAPDebugEnabled = YES;
+      LDAPDebugEnabled = YES;
       //PGDebugEnabled = YES;
       //MySQL4DebugEnabled = YES;
-      //SOGoUIxDebugEnabled = YES;
+      SOGoUIxDebugEnabled = YES;
       //WODontZipResponse = YES;
       WOLogFile = "/dev/stdout";
     }

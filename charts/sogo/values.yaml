@@ -154,7 +154,9 @@ sogo:
   ## @param extraEnvVars Extra environment variables
   ## For example:
   ##
-  extraEnvVars: []
+  extraEnvVars:
+    - name: LDAPTLS_REQCERT
+      value: never
   #  - name: BEARER_AUTH
   #    value: true
   ## @param extraEnvVarsCM ConfigMap containing extra env vars
