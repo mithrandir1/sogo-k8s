@@ -119,7 +119,7 @@ sogo:
       bindPassword: ""
       filter: "(&(sAMAccountName=%n)(objectClass=person)(mail=*)(!(userAccountControl=514)))"
   containerPorts:
-    http: 20000
+    http: 8080
   ## @param existingSecret Name of a secret with the application password
   ##
   existingSecret:

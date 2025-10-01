@@ -42,11 +42,16 @@ RUN echo "Building from repository $SOGO_DEBIAN_REPOSITORY" \
     sogo-activesync \
     sope4.9-gdl1-postgresql \
     ssmtp \
+    nginx \
   && apt-get autoclean \
   && rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/sogo.list \
   && touch /etc/default/locale \
-  && chmod +x /entrypoint.sh
+  && chmod +x /entrypoint.sh \
+  && rm /etc/nginx/sites-enabled/default \
+  && ln -snf /etc/nginx/sites-available/sogo /etc/nginx/sites-enabled/sogo
 
 COPY sogo.conf /usr/share/doc/sogo/
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx_sogo.conf /etc/nginx/sites-available/sogo
 USER sogo
 ENTRYPOINT [ "/entrypoint.sh" ]
