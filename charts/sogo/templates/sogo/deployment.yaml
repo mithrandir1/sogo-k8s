@@ -216,9 +216,6 @@ spec:
           imagePullPolicy: {{ .Values.sogo.image.pullPolicy | quote }}
           command: 
             - /usr/sbin/nginx
-          args: 
-            - "-g"
-            - "daemon off;"
           securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.sogo.containerSecurityContext "context" $) | nindent 12 }}
           env:
           ports:
