@@ -94,7 +94,7 @@ spec:
               mountPath: /srv/mail
         {{- end }}
       containers:
-        - name: {{ include "common.names.fullname" . }}
+        - name: sogo
           image: {{ template "sogo.image" . }}
           imagePullPolicy: {{ .Values.sogo.image.pullPolicy | quote }}
           {{- if .Values.sogo.command }}
@@ -211,6 +211,70 @@ spec:
             {{- if .Values.sogo.extraVolumeMounts }}
             {{- include "common.tplvalues.render" (dict "value" .Values.sogo.extraVolumeMounts "context" $) | nindent 12 }}
             {{- end }}
+        - name: nginx
+          image: {{ template "sogo.image" . }}
+          imagePullPolicy: {{ .Values.sogo.image.pullPolicy | quote }}
+          {{- if .Values.sogo.command }}
+          command: 
+            - /usr/sbin/nginx
+          args: 
+            - "-g"
+            - "daemon off;"
+          securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.sogo.containerSecurityContext "context" $) | nindent 12 }}
+          {{- end }}
+          env:
+          ports:
+            - name: http
+              containerPort: 8080
+          {{- if .Values.sogo.customStartupProbe }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" .Values.sogo.customStartupProbe "context" $) | nindent 12 }}
+          {{- else if .Values.sogo.startupProbe.enabled }}
+          startupProbe:
+            httpGet:
+              path: /SOGo
+              port: http
+            initialDelaySeconds: {{ .Values.sogo.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.sogo.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.sogo.startupProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.sogo.startupProbe.successThreshold }}
+            failureThreshold: {{ .Values.sogo.startupProbe.failureThreshold }}
+          {{- end }}
+          {{- if .Values.sogo.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.sogo.customLivenessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.sogo.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /SOGo
+              port: http
+            initialDelaySeconds: {{ .Values.sogo.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.sogo.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.sogo.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.sogo.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.sogo.livenessProbe.failureThreshold }}
+          {{- end }}
+          {{- if .Values.sogo.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.sogo.customReadinessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.sogo.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: /SOGo
+              port: http
+            initialDelaySeconds: {{ .Values.sogo.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.sogo.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.sogo.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.sogo.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.sogo.readinessProbe.failureThreshold }}
+          {{- end }}
+          {{- if .Values.sogo.resources }}
+          resources: {{- toYaml .Values.sogo.resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: nginxdir
+              mountPath: /var/lib/nginx
+              subPath: nginx
+            - name: nginxdir
+              mountPath: /tmp
+              subPath: tmp
         {{- if .Values.sogo.sidecars }}
         {{- include "common.tplvalues.render" (dict "value" .Values.sogo.sidecars "context" $) | nindent 8 }}
         {{- end }}
@@ -219,6 +283,8 @@ spec:
           configMap:
             name: {{ template "common.names.fullname" . }}
         - name: config
+          emptyDir: {}
+        - name: nginxdir
           emptyDir: {}
         {{- if .Values.sogo.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.sogo.extraVolumes "context" $) | nindent 8 }}
