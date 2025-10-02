@@ -214,14 +214,12 @@ spec:
         - name: nginx
           image: {{ template "sogo.image" . }}
           imagePullPolicy: {{ .Values.sogo.image.pullPolicy | quote }}
-          {{- if .Values.sogo.command }}
           command: 
             - /usr/sbin/nginx
           args: 
             - "-g"
             - "daemon off;"
           securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.sogo.containerSecurityContext "context" $) | nindent 12 }}
-          {{- end }}
           env:
           ports:
             - name: http
