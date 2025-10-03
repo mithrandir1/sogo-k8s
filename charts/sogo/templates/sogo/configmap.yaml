@@ -150,14 +150,14 @@ data:
       SOGoMemcachedHost = "{{ printf "%s-memcached" ( include "common.names.fullname" $ ) }}";
       
       /* Debug */
-      SOGoDebugRequests = YES;
-      //SoDebugBaseURL = YES;
-      //ImapDebugEnabled = YES;
-      LDAPDebugEnabled = YES;
-      //PGDebugEnabled = YES;
-      //MySQL4DebugEnabled = YES;
-      SOGoUIxDebugEnabled = YES;
-      //WODontZipResponse = YES;
+      SOGoDebugRequests = {{ ternary "YES" "NO" .debug }};
+      //SoDebugBaseURL = {{ ternary "YES" "NO" .debug }};
+      ImapDebugEnabled = {{ ternary "YES" "NO" .debug }};
+      LDAPDebugEnabled = {{ ternary "YES" "NO" .debug }};
+      //PGDebugEnabled = {{ ternary "YES" "NO" .debug }};
+      //MySQL4DebugEnabled = {{ ternary "YES" "NO" .debug }};
+      SOGoUIxDebugEnabled = {{ ternary "YES" "NO" .debug }};
+      //WODontZipResponse = {{ ternary "YES" "NO" .debug }};
       WOLogFile = "/dev/stdout";
     }
   ssmtp.conf: |

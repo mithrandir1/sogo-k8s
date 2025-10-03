@@ -83,6 +83,7 @@ sogo:
 
   config:
     title: "Sogo"
+    debug: false
     language: English
     domain: example.com
     timezone: Europe/Vienna
