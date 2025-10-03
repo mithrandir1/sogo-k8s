@@ -91,10 +91,10 @@ sogo:
     imap:
       server:
         host: "127.0.0.1"
-        port: "143"
+        port: 143
         tls: false
-        sievePort: "4190"
-        smtpPort: "25"
+        sievePort: 4190
+        smtpPort: 25
       folderNames:
         drafts: Drafts
         sent: Sent
