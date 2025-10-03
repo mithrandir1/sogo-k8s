@@ -51,9 +51,9 @@ data:
       SOGoSentFolderName = "{{ .imap.folderNames.sent }}";
       SOGoTrashFolderName = "{{ .imap.folderNames.trash }}";
       SOGoJunkFolderName = "{{ .imap.folderNames.junk }}";
-      SOGoIMAPServer = "{{ ternary 'imaps' 'imap' .imap.server.tls }}://{{ .imap.server.host }}:{{ .imap.server.port }}/?tls={{ ternary 'YES&tlsVerifyMode=allowInsecureLocalhost' 'NO' .imap.server.tls }}";
-      SOGoSieveServer = "sieve://{{ .imap.server.host }}:{{ .imap.server.sievePort }}/?tls={{ ternary 'YES&tlsVerifyMode=allowInsecureLocalhost' 'NO' .imap.server.tls }}";
-      SOGoSMTPServer = "smtp://{{ .imap.server.host }}:{{ .imap.server.smtpPort }}/?tls={{ ternary 'YES&tlsVerifyMode=allowInsecureLocalhost' 'NO' .imap.server.tls }}";
+      SOGoIMAPServer = {{ printf "%s://%s:%d/%s" (ternary "imaps" "imap" .imap.server.tls) .imap.server.host .imap.server.port (ternary "?tls=YES&tlsVerifyMode=allowInsecureLocalhost" "" .imap.server.tls) | quote }};
+      SOGoSieveServer = {{ printf "sieve://%s:%d/%s .imap.server.host .imap.server.sievePort (ternary "?tls=YES&tlsVerifyMode=allowInsecureLocalhost" "" .imap.server.tls) | quote }};
+      SOGoSMTPServer = {{ printf "smtp://%s:%d/%s .imap.server.host .imap.server.smtpPort (ternary "?tls=YES&tlsVerifyMode=allowInsecureLocalhost" "" .imap.server.tls) | quote }};
       SOGoMailDomain = "{{ .domain }}";
       SOGoMailingMechanism = "smtp";
       //SOGoForceExternalLoginWithEmail = NO;
