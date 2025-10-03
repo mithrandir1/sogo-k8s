@@ -92,7 +92,7 @@ sogo:
       server:
         host: "127.0.0.1"
         port: "143"
-        ssl: false
+        tls: false
         sievePort: "4190"
         smtpPort: "25"
       folderNames:
