@@ -52,7 +52,8 @@ data:
       SOGoTrashFolderName = "{{ .imap.folderNames.trash }}";
       SOGoJunkFolderName = "{{ .imap.folderNames.junk }}";
       SOGoIMAPServer = {{ printf "%s://%s:%d" (ternary "imaps" "imap" .imap.server.tls) .imap.server.host (int .imap.server.port) | quote }};
-      SOGoSieveServer = {{ printf "sieve://%s:%d/%s" .imap.server.host (int .imap.server.sievePort) (ternary "?tls=YES" "" .imap.server.tls) | quote }};
+      //SOGoSieveServer = {{ printf "sieve://%s:%d/%s" .imap.server.host (int .imap.server.sievePort) (ternary "?tls=YES" "" .imap.server.tls) | quote }};
+      SOGoSieveServer = {{ printf "sieve://%s:%d/" .imap.server.host (int .imap.server.sievePort) | quote }};
       SOGoSMTPServer = {{ printf "%s://%s:%d" (ternary "smtps" "smtp" .imap.server.tls) .imap.server.host (int .imap.server.smtpPort) | quote }};
       SOGoMailDomain = "{{ .domain }}";
       SOGoMailingMechanism = "smtp";
