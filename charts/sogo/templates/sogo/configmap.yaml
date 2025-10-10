@@ -154,7 +154,7 @@ data:
       //SoDebugBaseURL = {{ ternary "YES" "NO" .debug }};
       ImapDebugEnabled = {{ ternary "YES" "NO" .debug }};
       LDAPDebugEnabled = {{ ternary "YES" "NO" .debug }};
-      //PGDebugEnabled = {{ ternary "YES" "NO" .debug }};
+      PGDebugEnabled = {{ ternary "YES" "NO" .debug }};
       //MySQL4DebugEnabled = {{ ternary "YES" "NO" .debug }};
       SOGoUIxDebugEnabled = {{ ternary "YES" "NO" .debug }};
       //WODontZipResponse = {{ ternary "YES" "NO" .debug }};

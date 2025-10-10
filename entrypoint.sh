@@ -19,4 +19,4 @@ echo ========= /etc/sogo/sogo.conf =========
 cat /etc/sogo/sogo.conf
 echo =======================================
 plparse /etc/sogo/sogo.conf
-/usr/sbin/sogod -WOWorkersCount 3 -WOLogFile /dev/stdout -WONoDetach YES
+/usr/sbin/sogod -WOWorkersCount 10 -WOLogFile /dev/stdout -WONoDetach YES
