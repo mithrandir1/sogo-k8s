@@ -87,3 +87,18 @@ jobs:
           helm package charts/sogo --dependency-update
           echo ${GHCR_TOKEN} | helm registry login --username ${GITHUB_REPOSITORY_OWNER} --password-stdin ghcr.io
           helm push ${chart_name}-${chart_version}.tgz oci://ghcr.io/${GITHUB_REPOSITORY_OWNER}/
+
+      - name: 'Update Git'
+        shell: bash
+        run: |
+          source .env
+          export chart_version=$(yq eval -r '.version' charts/sogo/Chart.yaml)
+
+          git add charts/sogo/Chart.yaml
+          git add charts/sogo/values.yaml
+          git commit -m "version update to ${chart_version}"
+          if [[ $count -eq 0 ]]; then
+            git tag $SOGO_VER
+            git push
+            git push --tags
+          fi
