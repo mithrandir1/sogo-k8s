@@ -146,7 +146,7 @@ data:
       //);
       SOGoSuperUsernames = ({{ join ", " .superUsers }});
       //SxVMemLimit = 384;
-      WOWorkersCount = {{ default 10 .workerCount }}
+      WOWorkersCount = {{ default 10 .workerCount }};
       WOPidFile = "/tmp/sogo.pid";
       SOGoMemcachedHost = "{{ printf "%s-memcached" ( include "common.names.fullname" $ ) }}";
       
