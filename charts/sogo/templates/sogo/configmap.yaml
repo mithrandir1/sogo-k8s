@@ -58,6 +58,7 @@ data:
       SOGoMailingMechanism = "smtp";
       SOGoSieveFolderEncoding = "UTF-8";
       SOGoIMAPAclConformsToIMAPExt = YES;
+      SOGoIMAPAclStyle = "rfc4314";
       //SOGoForceExternalLoginWithEmail = NO;
       //SOGoMailSpoolPath = "/var/spool/sogo";
       SOGoMailUseOutlookStyleReplies = YES;
