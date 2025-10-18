@@ -57,7 +57,7 @@ data:
       SOGoMailDomain = "{{ .domain }}";
       SOGoMailingMechanism = "smtp";
       SOGoSieveFolderEncoding = "UTF-8";
-      SOGoIMAPAclConformsToIMAPExt = YES;
+      SOGoIMAPAclConformsToIMAPExt = NO;
       SOGoIMAPAclStyle = "rfc4314";
       //SOGoForceExternalLoginWithEmail = NO;
       //SOGoMailSpoolPath = "/var/spool/sogo";
