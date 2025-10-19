@@ -179,10 +179,10 @@ data:
     UseTLS={{ ternary "yes" "no" .imap.server.tls }}
 
     # Where will the mail seem to come from?
-    #rewriteDomain=
+    rewriteDomain={{ .domain }}
 
     # The full hostname
-    hostname=sogo.{{ .domain }}
+    hostname={{ .domain }}
 
     # Are users allowed to set their own From: address?
     # YES - Allow the user to specify their own From: address
