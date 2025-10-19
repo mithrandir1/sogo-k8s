@@ -174,7 +174,7 @@ data:
 
     # The place where the mail goes. The actual machine name is required no 
     # MX records are consulted. Commonly mailhosts are named mail.domain.com
-    mailhub={{ .imap.server.host }}:{{ .imap.server.smtpport }}
+    mailhub={{ .imap.server.host }}:{{ .imap.server.smtpPort }}
     UseSTARTTLS=no
     UseTLS={{ ternary "yes" "no" .imap.server.tls }}
 
