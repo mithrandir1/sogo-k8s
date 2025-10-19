@@ -207,6 +207,10 @@ spec:
           volumeMounts:
             - name: config-template
               mountPath: /usr/share/doc/sogo
+              subPath: sogo.conf
+            - name: config-template
+              mountPath: /etc/ssmtp
+              subPath: ssmtp.conf
             - name: config
               mountPath: /etc/sogo
             {{- if .Values.sogo.extraVolumeMounts }}

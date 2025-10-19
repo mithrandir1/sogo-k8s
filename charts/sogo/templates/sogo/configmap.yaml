@@ -174,14 +174,15 @@ data:
 
     # The place where the mail goes. The actual machine name is required no 
     # MX records are consulted. Commonly mailhosts are named mail.domain.com
-    UseSTARTTLS=no
     mailhub={{ .imap.server.host }}:{{ .imap.server.smtpport }}
+    UseSTARTTLS=no
+    UseTLS={{ ternary "yes" "no" .imap.server.tls }}
 
     # Where will the mail seem to come from?
     #rewriteDomain=
 
     # The full hostname
-    hostname={{ .domain }}
+    hostname=sogo.{{ .domain }}
 
     # Are users allowed to set their own From: address?
     # YES - Allow the user to specify their own From: address

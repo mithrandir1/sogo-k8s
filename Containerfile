@@ -43,6 +43,7 @@ RUN echo "Building from repository $SOGO_DEBIAN_REPOSITORY" \
     sope4.9-gdl1-postgresql \
     ssmtp \
     nginx \
+  && usermod -a -G mail sogo \
   && apt-get autoclean \
   && rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/sogo.list \
   && touch /etc/default/locale \
