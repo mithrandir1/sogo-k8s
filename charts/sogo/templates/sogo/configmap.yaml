@@ -62,6 +62,8 @@ data:
       //SOGoForceExternalLoginWithEmail = NO;
       //SOGoMailSpoolPath = "/var/spool/sogo";
       SOGoMailUseOutlookStyleReplies = YES;
+      SOGoMailAuxiliaryUserAccountsEnabled = YES;
+      SOGoSieveScriptsEnabled = YES;
 
       /* Notifications */
       //SOGoAppointmentSendEMailNotifications = NO;
